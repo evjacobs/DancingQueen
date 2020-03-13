@@ -11,5 +11,6 @@
 @interface AppDelegate : UIResponder <UIApplicationDelegate, RCTBridgeDelegate>
 
 @property (nonatomic, strong) UIWindow *window;
+@property (nonatomic, assign) UIBackgroundTaskIdentifier taskIdentifier;
 
 @end

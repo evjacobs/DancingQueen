@@ -1,11 +1,13 @@
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, Button} from 'react-native';
 import {
-  setUpdateIntervalForType,
-  SensorTypes,
   accelerometer,
   gyroscope,
+  setUpdateIntervalForType,
+  SensorTypes,
 } from 'react-native-sensors';
+import { Series, DataFrame } from 'pandas-js';
+
 
 const Value = ({name, value}) => (
   <View style={styles.valueContainer}>
@@ -17,34 +19,49 @@ const Value = ({name, value}) => (
 export default class App extends Component {
   constructor(props) {
     super(props);
-
-    setUpdateIntervalForType(SensorTypes.accelerometer, 200);
-    this.accelSubscription = accelerometer.subscribe(({x, y, z, timestamp}) =>
-      this.setState({
-        accel_x: x,
-        accel_y: y,
-        accel_z: z,
-      }),
-    );
-
     this.state = {
       acceleration: 0,
       accel_x: 0,
       accel_y: 0,
       accel_z: 0,
+      gyro_x: 0,
+      gyro_y: 0,
+      gyro_z: 0,
     };
+
+    accelerometer.subscribe(({x, y, z, timestamp}) =>
+        console.log("accel" ,{ x, y, z, timestamp })
+     /* this.setState(
+        ((this.state.accel_x = {x}),
+        (this.state.accel_y = {y}),
+        (this.state.accel_z = {z})),
+      ), */
+    );
+
+    gyroscope.subscribe(({x, y, z, timestamp}) =>
+      /*this.setState(
+        ((this.state.gyro_x = {x}),
+        (this.state.gyro_y = {y}),
+        (this.state.gyro_z = {z})),
+      ),*/
+        console.log("gyro" ,{ x, y, z, timestamp })
+    );
   }
+
+  populate_dataframe() {
+
+    console.log("here");
+  }
+
 
   render() {
     return (
       <View style={styles.container}>
         <Text style={styles.instructions}>Welcome to Dancing Queen!</Text>
-        <Text style={styles.headline}>
-          Accelerometer values
-        </Text>
-        <Value name="x" value={this.state.x} />
-        <Value name="y" value={this.state.y} />
-        <Value name="z" value={this.state.z} />git
+        <Button
+            title="hit that shit babey"
+            onPress={() => this.populate_dataframe()}
+        />
       </View>
     );
   }
