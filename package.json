@@ -10,10 +10,12 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "babel-cli": "^6.26.0",
     "pandas-js": "^0.2.4",
     "react": "16.9.0",
     "react-native": "0.61.5",
-    "react-native-sensors": "^5.3.3"
+    "react-native-sensors": "^5.3.3",
+    "url": "^0.11.0"
   },
   "devDependencies": {
     "@babel/core": "7.8.4",
@@ -27,5 +29,8 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "browser": {
+    "child_process": false
   }
 }
