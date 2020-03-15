@@ -7,6 +7,8 @@ import {
   SensorTypes,
 } from 'react-native-sensors';
 import { Series, DataFrame } from 'pandas-js';
+const { map } = require('immutable');
+
 
 const Value = ({name, value}) => (
   <View style={styles.valueContainer}>
@@ -36,6 +38,9 @@ export default class App extends Component {
 
   populate_dataframe() {
 
+   var df_1 = new DataFrame({time: 1, acc_x: 1, acc_y: 1, acc_z: 1, gyro_x: 1, gyro_y: 1, gyro_z: 1 });
+
+
     this.setState(prevState => ({
       collection: !prevState.collection,
     }));
@@ -43,32 +48,29 @@ export default class App extends Component {
 
     if (this.state.collection == true) {
       const subscription = accelerometer.subscribe(
-        ({x, y, z, timestamp}) => {//console.log('accel', {x, y, z, timestamp})
-         /* const df2 = new DataFrame({
-            time: [timestamp],
-            accel_x: [x],
-            accel_y: [y],
-            accel_z: [z],
-          }, ['time', 'accel_x', 'accel_y', 'accel_z']);
-          this.df_a.join(df2, ['time', 'accel_x', 'accel_y', 'accel_z'], "full");*/
+        ({x, y, z, timestamp}) => {
+
+            const subscription2 = gyroscope.subscribe(({g_x, g_y, g_z, timestamp}) => {
+             var df_2 = new DataFrame ({
+               time: timestamp, accel_x: x, accel_y: y, accel_z: z});
+             df_1 = df_1.append(df_2);
+              console.log("df1", df_1);
+
+          });
+          setTimeout(() => {
+            subscription2.unsubscribe();
+
+          }, 15000);
         });
 
-      const subscription2 = gyroscope.subscribe(({x, y, z, timestamp}) => {
 
-        //console.log('gyro', {x, y, z, timestamp}),
-        /*const df3 = new DataFrame({
-          gyro_x: [x],
-          gyro_y: [y],
-          gyro_z: [z],
-        }, ['gyro_x', 'gyro_y', 'gyro_z']);
-        this.df_g.join(df3, ['gyro_x', 'gyro_y', 'gyro_z'], "full");*/
-      });
 
+
+
+      //const df_3 = concat([df_1, df_2], {ignore_index: true});
       setTimeout(() => {
         subscription.unsubscribe();
-        subscription2.unsubscribe();
-
-       // this.df_a.join(this.df_g, ['time', 'accel_x', 'accel_y', 'accel_z', 'gyro_x', 'gyro_y', 'gyro_z'], "full");
+        //subscription2.unsubscribe();
 
       }, 15000);
 

@@ -10,7 +10,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@babel/types": "latest",
     "babel-cli": "^6.26.0",
+    "immutable": "^4.0.0-rc.12",
     "pandas-js": "^0.2.4",
     "react": "16.9.0",
     "react-native": "0.61.5",
