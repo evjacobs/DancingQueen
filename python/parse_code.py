@@ -1,9 +1,7 @@
 import pandas as pd
-import ast
 import numpy as np
+import ast
 from pathlib import Path
-import re
-import os
 import matplotlib.pyplot as plt
 
 
@@ -64,19 +62,25 @@ def smooth(data):
     data = data.subtract(mean, axis = 1)
     data['time'] = time
 
-    data['accel_x'] = data['accel_x'].rolling(window=5).mean()
-    data['accel_y'] = data['accel_y'].rolling(window=5).mean()
-    data['accel_z'] = data['accel_z'].rolling(window=5).mean()
-    data['accel_x_std'] = data['accel_x'].rolling(window=5).std()
-    data['accel_y_std'] = data['accel_y'].rolling(window=5).std()
-    data['accel_z_std'] = data['accel_z'].rolling(window=5).std()
-    data['gyro_x'] = data['gyro_x'].rolling(window=5).mean()
-    data['gyro_y'] = data['gyro_y'].rolling(window=5).mean()
-    data['gyro_z'] = data['gyro_z'].rolling(window=5).mean()
-    data['gyro_x_std'] = data['gyro_x'].rolling(window=5).std()
-    data['gyro_y_std'] = data['gyro_y'].rolling(window=5).std()
-    data['gyro_z_std'] = data['gyro_z'].rolling(window=5).std()
+    data['accel_x'] = data['accel_x'] / data['accel_x'].max()
+    data['accel_y'] = data['accel_y'] / data['accel_y'].max()
+    data['accel_z'] = data['accel_z'] / data['accel_z'].max()
+    data['gyro_x'] = data['gyro_x'] / data['gyro_x'].max()
+    data['gyro_y'] = data['gyro_y'] / data['gyro_y'].max()
+    data['gyro_z'] = data['gyro_z'] / data['gyro_z'].max()
 
+    data['accel_x'] = data['accel_x'].rolling(window=15).mean()
+    data['accel_y'] = data['accel_y'].rolling(window=15).mean()
+    data['accel_z'] = data['accel_z'].rolling(window=15).mean()
+    data['accel_x_std'] = data['accel_x'].rolling(window=15).std()
+    data['accel_y_std'] = data['accel_y'].rolling(window=15).std()
+    data['accel_z_std'] = data['accel_z'].rolling(window=15).std()
+    data['gyro_x'] = data['gyro_x'].rolling(window=15).mean()
+    data['gyro_y'] = data['gyro_y'].rolling(window=15).mean()
+    data['gyro_z'] = data['gyro_z'].rolling(window=15).mean()
+    data['gyro_x_std'] = data['gyro_x'].rolling(window=15).std()
+    data['gyro_y_std'] = data['gyro_y'].rolling(window=15).std()
+    data['gyro_z_std'] = data['gyro_z'].rolling(window=15).std()
     return data
 
 
@@ -98,8 +102,8 @@ def create_list(folderpath):
                             "data": data}
             gyro.append(single_entry)
 
-    X = []
-    Y = []
+
+    X = pd.DataFrame()
     for file1 in accel:
         for file2 in gyro:
             if file1['entry'] == file2['entry']:
@@ -109,20 +113,46 @@ def create_list(folderpath):
                 data = smooth(data)
                 start_time = data['time'].iloc[0]
                 data['time'] = data['time'] - start_time
-                moves = move_classify(data).dropna().values.tolist()
-                data = data.drop(columns=['move_label']).dropna().values.tolist()
-                X = X + data
-                Y = Y + moves
+                data = move_classify(data).dropna()
+
+                '''
+                fig, (ax0, ax1, ax2) = plt.subplots(nrows=3,
+                                                    figsize=(15, 10),
+                                                    sharex=True)
+                ax0.plot(data['time'], data['accel_x'])
+                ax1.plot(data['time'], data['accel_y'])
+                ax2.plot(data['time'], data['accel_z'])
+                plt.subplots_adjust(hspace=0.2)
+                plt.subplots_adjust(top=0.90)
+                plt.show()
+                '''
+
+                if X.empty == True:
+                    X = data
+                else:
+                    X = X.append(data)
+
+    Y = X.move_label
+    X = X.drop(['move_label'], axis=1)
 
     return X, Y
 
+def plot_axis(ax, x, y, title):
+
+    ax.plot(x, y, 'r')
+    ax.set_title(title)
+    ax.xaxis.set_visible(False)
+    ax.set_ylim([min(y) - np.std(y), max(y) + np.std(y)])
+    ax.set_xlim([min(x), max(x)])
+    ax.grid(True)
 
 if __name__ == '__main__':
-    data = create_list('data/')
+    data = create_list('../data/')
+
     # change the name of file of the formatted data here
-    x_file = open(r"X_test.txt", "w")
-    x_file.write(str(data[0]))
+    data[0].to_csv(r'X_train.txt', index=False, header=False)
     # change the name of the file of the labels here
-    y_file = open(r"Y_train.txt", "w")
-    y_file.write(str(data[1]))
+    data[1].to_csv(r'Y_train.txt', index=False, header=False)
+
+
 
